@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "appuser",
+    "password": "apppassword",
+    "database": "appdb",
+    "host": "db",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "appuser",
+    "password": "apppassword",
+    "database": "appdb_test",
+    "host": "db",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "appuser",
+    "password": "apppassword",
+    "database": "appdb",
+    "host": "db",
+    "dialect": "mysql"
+  }
+}

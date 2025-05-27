@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # Frontend service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: streamverse-frontend
+    ports:
+      - "19000:19000"  # Expo packager
+      - "19001:19001"  # Metro bundler
+      - "19002:19002"  # Expo dev tools
+      - "19006:19006"  # React Native Web
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - REACT_NATIVE_PACKAGER_HOSTNAME=localhost
+      - NODE_ENV=development
+      - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
+      - EXPO_WEB_DEBUG=true
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Backend service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: streamverse-backend
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=streamverse
+      - DB_PASSWORD=streamverse
+      - DB_NAME=streamverse
+    depends_on:
+      - mysql
+
+  # MySQL database
+  mysql:
+    image: mysql:8.0
+    container_name: streamverse-mysql
+    ports:
+      - "3308:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=streamverse
+      - MYSQL_USER=streamverse
+      - MYSQL_PASSWORD=streamverse
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+    platform: linux/amd64
+
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: streamverse-phpmyadmin
+    ports:
+      - "8087:80"
+    environment:
+      - PMA_HOST=mysql
+      - PMA_PORT=3306
+    depends_on:
+      - mysql
+    restart: unless-stopped
+    platform: linux/amd64
+
+volumes:
+  mysql_data: 
